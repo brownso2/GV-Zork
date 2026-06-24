@@ -188,3 +188,24 @@ class Game:
         barista.add_message("Need a coffee?")
         barista.add_message("I think they want a latte")
         barista.add_message("Good luck saving campus!")
+
+
+
+"""Main file for GV-ZORK. Starts the game."""
+
+from game import Game
+
+
+def main():
+    """Creates and starts the game."""
+
+    game = Game()
+
+    #TO DO GROUP:
+    #Replace this with game.play()
+    #once the play() method is created.
+    print("Game created successfully.")
+
+
+if __name__ == "__main__":
+    main()
