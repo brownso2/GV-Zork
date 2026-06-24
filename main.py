@@ -9,7 +9,7 @@ def main():
 
     game = Game()
 
-    # TODO GROUP:
+    #TO DO GROUP:
     #Replace this with game.play()
     #once the play() method is created.
     print("Game created successfully.")
