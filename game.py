@@ -48,7 +48,6 @@ class Game:
             # Look for a matching item name.
             if item.name.lower() == target.lower():
 
-                #Prevent player from carrying more than 30 pounds.
                 if self._current_weight + item.weight > 30:
                     print("You can't carry that much weight.")
                     return
@@ -64,7 +63,7 @@ class Game:
 
                 print(f"You picked up {item.name}.")
                 return
-        # Item was not found.
+
         print("That item is not here.")
 
     def give(self, target: str) -> None:
@@ -227,7 +226,6 @@ class Game:
             2
         )
 
-        #Return all items as a list.
         return [
             pizza,
             burger,
