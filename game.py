@@ -4,61 +4,107 @@ from item import Item
 from location import Location
 from npc import NPC
 
-
+#(SOFIE)
 class Game:
     """Main game class for GV-ZORK.
     Controls inventory, item handling, and elf calories."""
 
 
     def __init__(self):
-        #Stores items the player is carrying.
+        #stores items the player is carrying.
         self._inventory = []
 
-        #Tracks the total weight of carried items.
+        #tracks the total weight of carried items.
         self._current_weight = 0
 
-        #Calories still needed by the elf.
+        #calories still needed by the elf.
         self._elf_calories_needed = 500
 
-        #Stores all locations in the game.
+        #stores all locations in the game.
         self._locations = []
 
-        #Stores the player's current location.
+        #stores the player's current location.
         self._current_location = None
 
-        #Controls whether the game is running.
+        #controls whether the game is running.
         self._in_progress = True
 
-        # TODO SOPHIA:
-        #Create command dictionary.
-        self._commands = {}
+        #sophia's command dictionary.
+        self._commands = self.setup_commands()
 
-        # TODO MIA:
-        #Create world and starting location.
+    # /////////////
+    #WORLD CREATION (SOPHIA)
+    """Creates NPCs, locations, and places
+     everything into the game world."""
+
+    def create_world(self):
+
+        elf = NPC(
+            "Elf",
+            "A magical elf who loves food and can break the troll's spell."
+        )
+        elf.add_message("Have you brought me something to eat?")
+        elf.add_message("I'm starving")
+        elf.add_message("The fate of campus rests in your hands!")
+
+        professor = NPC(
+            "Professor",
+            "A tired professor surrounded by stacks of assignments."
+        )
+        professor.add_message("Have you started the project yet?")
+        professor.add_message("Remember to test your code.")
+        professor.add_message("Office hours are tomorrow.")
+
+        student = NPC(
+            "Student",
+            "A stressed student carrying several textbooks."
+        )
+        student.add_message("I haven't slept in two days.")
+        student.add_message("Do you know where the library is?")
+        student.add_message("I have 3 assignments due tonight")
+
+        janitor = NPC(
+            "Janitor",
+            "A friendly janitor cleaning the hallway."
+        )
+        janitor.add_message("Campus has been quiet today.")
+        janitor.add_message("I think I saw something near the ravines.")
+        janitor.add_message("Stay safe out there.")
+
+        barista = NPC(
+            "Barista",
+            "A cheerful barista serving coffee."
+        )
+        barista.add_message("Need a coffee?")
+        barista.add_message("I think they want a latte")
+        barista.add_message("Good luck saving campus!")
+
+    # TODO MIA:
+    # Create locations, connect locations.
+    # Add NPCs to locations.
+    # Place items in locations.
+    # Create random starting location.
 
     # /////////////
     #SOFIE'S SECTION
 
     def take(self, target: str) -> None:
-        """Picks up an item from the current location
-        and adds it to the player's inventory."""
 
-        #Check every item in the current room.
+        #check every item in the current room.
         for item in self._current_location.get_items():
-            # Look for a matching item name.
             if item.name.lower() == target.lower():
 
                 if self._current_weight + item.weight > 30:
                     print("You can't carry that much weight.")
                     return
 
-                #Add item to inventory.
+                #add item to inventory.
                 self._inventory.append(item)
 
-                #Update weight.
+                #update weight.
                 self._current_weight += item.weight
 
-                #Remove item from room.
+                #remove item from room.
                 self._current_location.remove_item(item)
 
                 print(f"You picked up {item.name}.")
@@ -71,22 +117,21 @@ class Game:
         If the player is with the elf, the item is given to the elf.
         Otherwise, it is dropped and left in the room."""
 
-        #Search inventory for the requested item.
+        #search inventory for the requested item.
         for item in self._inventory:
 
             if item.name.lower() == target.lower():
 
-                #Remove from inventory.
+                #remove from inventory.
                 self._inventory.remove(item)
 
-                #Update weight.
                 self._current_weight -= item.weight
 
                 # TODO MIA:
                 #Replace "woods" with actual elf location.
                 if self._current_location.name.lower() == "woods":
 
-                    #Feed food items to the elf, only food items have calories.
+                    #feed food items to the elf, only food items have calories.
                     if item.calories > 0:
 
                         self._elf_calories_needed -= item.calories
@@ -100,7 +145,7 @@ class Game:
                             f"{self._elf_calories_needed}"
                         )
 
-                        #Check if the elf has enough food.
+                        #check if the elf has enough food.
                         if self._elf_calories_needed <= 0:
 
                             print(
@@ -119,7 +164,7 @@ class Game:
 
                 else:
 
-                    #Drop item in current room.
+                    #drop item in current room.
                     self._current_location.add_item(item)
 
                     print(
@@ -127,34 +172,31 @@ class Game:
                     )
                 return
 
-        #Item was not found in inventory.
         print("You do not have that item.")
 
     def show_items(self) -> None:
-        """Displays the player's inventory."""
 
-        #Show current weight carried.
+        #show the current weight carried.
         print(
             f"Current weight: "
             f"{self._current_weight}/30 lbs"
         )
 
-        #Check for an empty inventory.
+        #check for an empty inventory.
         if len(self._inventory) == 0:
             print("Inventory is empty.")
             return
 
         print("Inventory:")
 
-        #Display every item being carried.
+        #display every item being carried.
         for item in self._inventory:
             print(f"- {item}")
 
-#ITEM CREATION
+#ITEM CREATION (SOFIE)
     def create_items(self):
-        """Creates all items used in the game."""
 
-        #Food items that can be fed to the elf.
+        #food items that can be fed to the elf.
         pizza = Item(
             "Pizza Slice",
             "A greasy slice of pizza.",
@@ -197,7 +239,7 @@ class Game:
             1
         )
 
-        #Non-food items.
+        #non-food items.
         rusty_nail = Item(
             "Rusty Nail",
             "A rusty nail.",
@@ -240,33 +282,11 @@ class Game:
         ]
 
     # /////////////
-    # MIA'S SECTION
-
-
-    # TODO MIA:
-    # create_world()
-
-    # TODO MIA:
-    # connect_locations()
-
-    # TODO MIA:
-    # opening_screen()
-
-    # TODO MIA:
-    # look()
-
-    # TODO MIA:
-    # random_start_location()
-
-    # TODO MIA:
-    # teleport_player()
-
-    # /////////////
     # SOPHIA'S SECTION
 
-
-    # TODO SOPHIA:
     def setup_commands(self) -> dict: #btw some of this is stealing from Mia's class so it may need a super_init or something to stop the underlines once Mia writes it
+        """Creates command dictionary."""
+
         commands = {
         "help": self.help,
         "?": self.help,
@@ -296,42 +316,38 @@ class Game:
     }
         return commands
 
-#I am going to over explain myself here because I want to make sure everyone understand what I'm doing because it took me hours 
-    # TODO SOPHIA:
+#I am going to over explain myself here because I want to make sure everyone understand what I'm doing because it took me hours
     def help(self, args=None):
     #this displays all the valid commands 
         print("Valid commands are:")
         for command in self._commands:
-            print("-", command) #running it as a for loop so itll print them out at once
+            print("-", command) #running it as a for loop so it'll print them out at once
 
-    # TODO SOPHIA:
     def go(self, target: str) -> None:
    #trying to attempt moving the player to a new location
 
     # Marking this location as visited:
         self._current_location.set_visited()
     # Check if one of the directions exists:
-    locations = self._current_location.get_locations()
+        locations = self._current_location.get_locations()
 
-    if target.lower() in locations:
-        self._current_location = locations[target.lower()] #this moves the player 
-        print(f"You are now in {self._current_location}.")
+        if target.lower() in locations:
+            self._current_location = locations[target.lower()] #this moves the player
+            print(f"You are now in {self._current_location}.")
 
-    else:
-        print("Sorry, you can't go that way.")
+        else:
+            print("Sorry, you can't go that way.")
 
-    # TODO SOPHIA:
     # talk()
-        def talk(self, target: str) -> None:
-            for npc in self._current_location.get_npcs(): #checks everybody
-             if npc.name.lower() == target.lower():
+    def talk(self, target: str) -> None:
+        for npc in self._current_location.get_npcs(): #checks everybody
+            if npc.name.lower() == target.lower():
                 print(npc.get_message()) #this is checking to make sure everybody is there
-            return
+                return
             print("They are not here.")
 
-    # TODO SOPHIA:
     # meet()
-        def meet(self, target: str) -> None:
+    def meet(self, target: str) -> None:
          for npc in self._current_location.get_npcs():
              if npc.name.lower() == target.lower():
                  print(npc.description)
@@ -340,14 +356,33 @@ class Game:
 
 
     # /////////////
-    # GROUP SECTION
+    # MIA'S SECTION
 
+    # TODO MIA:
+    # opening_screen()
+
+    # TODO MIA:
+    # random_start_location()
+
+    # TODO MIA:
+    # teleport_player()
+
+    # /////////////
+    # GROUP SECTION
+    def quit(self, args=None):
+        """Ends the game."""
+
+        print("Thanks for playing! :)")
+        self._in_progress = False
 
     # TODO:
     # play()
 
     # TODO:
-    # quit()
+    # win condition
+
+    # TODO:
+    # loss condition
 
     # TODO:
     # custom command #1
