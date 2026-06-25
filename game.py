@@ -266,22 +266,78 @@ class Game:
 
 
     # TODO SOPHIA:
-    # setup_commands()
+    def setup_commands(self) -> dict: #btw some of this is stealing from Mia's class so it may need a super_init or something to stop the underlines once Mia writes it
+        commands = {
+        "help": self.help,
+        "?": self.help,
+
+        "look": self.look,
+
+        "go": self.go,
+        "leave": self.go,
+
+        "take": self.take,
+        "get": self.take,
+        "grab": self.take,
+        "pickup": self.take,
+
+        "give": self.give,
+        "drop": self.give,
+        "toss": self.give,
+
+        "items": self.show_items,
+        "inventory": self.show_items,
+
+        "talk": self.talk,
+        "meet": self.meet,
+
+        "quit": self.quit,
+        "exit": self.quit
+    }
+        return commands
+
+#I am going to over explain myself here because I want to make sure everyone understand what I'm doing because it took me hours 
+    # TODO SOPHIA:
+    def help(self, args=None):
+    #this displays all the valid commands 
+        print("Valid commands are:")
+        for command in self._commands:
+            print("-", command) #running it as a for loop so itll print them out at once
 
     # TODO SOPHIA:
-    # help()
+    def go(self, target: str) -> None:
+   #trying to attempt moving the player to a new location
 
-    # TODO SOPHIA:
-    # go()
+    # Marking this location as visited:
+        self._current_location.set_visited()
+    # Check if one of the directions exists:
+    locations = self._current_location.get_locations()
+
+    if target.lower() in locations:
+        self._current_location = locations[target.lower()] #this moves the player 
+        print(f"You are now in {self._current_location}.")
+
+    else:
+        print("Sorry, you can't go that way.")
 
     # TODO SOPHIA:
     # talk()
+        def talk(self, target: str) -> None:
+            for npc in self._current_location.get_npcs(): #checks everybody
+             if npc.name.lower() == target.lower():
+                print(npc.get_message()) #this is checking to make sure everybody is there
+            return
+            print("They are not here.")
 
     # TODO SOPHIA:
     # meet()
+        def meet(self, target: str) -> None:
+         for npc in self._current_location.get_npcs():
+             if npc.name.lower() == target.lower():
+                 print(npc.description)
+                 return
+         print("They're not here.")
 
-    # TODO SOPHIA:
-    # command aliases
 
     # /////////////
     # GROUP SECTION
