@@ -7,10 +7,8 @@ def main():
     """Creates and starts the game."""
 
     game = Game()
+    game.play()
 
-    # TODO GROUP:
-    #Replace this with game.play()
-    #once the play() method is created.
     print("Game created successfully.")
 
 
