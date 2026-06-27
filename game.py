@@ -213,7 +213,10 @@ class Game:
     #SOFIE'S SECTION
 
     def take(self, target: str) -> None:
-
+        if target == "":
+            print("Take what?")
+            return
+        
         #check every item in the current room.
         for item in self._current_location.get_items():
             if item.name.lower() == target.lower():
@@ -240,6 +243,9 @@ class Game:
         """Removes an item from inventory.
         If the player is with the elf, the item is given to the elf.
         Otherwise, it is dropped and left in the room."""
+        if target == "":
+            print("Give what?")
+            return
 
         #search inventory for the requested item.
         for item in self._inventory:
@@ -297,7 +303,7 @@ class Game:
 
         print("You do not have that item.")
 
-    def show_items(self) -> None:
+    def show_items(self, args=None) -> None:
 
         #show the current weight carried.
         print(
@@ -449,7 +455,10 @@ class Game:
         self._current_location.set_visited()
     # Check if one of the directions exists:
         locations = self._current_location.get_locations()
-
+        if target == "":
+            print("Go where?")
+            return
+        
         if target.lower() in locations:
             self._current_location = locations[target.lower()] #this moves the player
             print(f"You are now in {self._current_location}.")
@@ -459,11 +468,16 @@ class Game:
 
     # talk()
     def talk(self, target: str) -> None:
-        for npc in self._current_location.get_npcs(): #checks everybody
-            if npc.name.lower() == target.lower():
-                print(npc.get_message()) #this is checking to make sure everybody is there
+        for npc in self._current_location.get_npcs():
+            if target == "":
+                print("Talk to who?")
                 return
-            print("They are not here.")
+
+            if npc.name.lower() == target.lower():
+                print(npc.get_message())
+                return
+
+        print("They are not here.")
 
     # meet()
     def meet(self, target: str) -> None:
@@ -600,7 +614,7 @@ class Game:
 
     def search(self, args=None):
         """Custom command 2: gives a small hint."""
-
+    
         if self._current_location == self._elf_location:
             print("The elf is here. Try giving him edible food.")
         elif len(self._current_location.get_items()) > 0:
