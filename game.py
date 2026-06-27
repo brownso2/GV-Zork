@@ -1,4 +1,7 @@
-#Game Class for GV-ZORK
+"""Game class for GV-ZORK.
+
+Creates the game world, handles commands, and controls gameplay.
+"""
 
 import random
 from datetime import datetime
@@ -7,47 +10,55 @@ from item import Item
 from location import Location
 from npc import NPC
 
-#(SOFIE)
+
+# --------------------------------------------------
+# SOFIE
+# --------------------------------------------------
 class Game:
     """Main game class for GV-ZORK.
-    Controls inventory, item handling, and elf calories."""
 
+    Controls the game world, player inventory, commands,
+    and interactions with the elf.
+    """
 
     def __init__(self):
-        #stores items the player is carrying.
+        """Creates a new game object and sets starting values."""
+
+        # Stores items the player is carrying.
         self._inventory = []
 
-        #tracks the total weight of carried items.
+        # Tracks the total weight of carried items.
         self._current_weight = 0
 
-        #calories still needed by the elf.
+        # Tracks the calories still needed by the elf.
         self._elf_calories_needed = 500
 
-        #stores all locations in the game.
+        # Stores all locations in the game.
         self._locations = []
 
-        #stores the player's current location.
+        # Stores the player's current location.
         self._current_location = None
 
-        #controls whether the game is running.
+        # Controls whether the game is running.
         self._in_progress = True
 
-        #sophia's command dictionary.
+        # Stores the command dictionary.
         self._commands = self.setup_commands()
 
-        # creates the map, items, and NPCs
+        # Creates the map, items, and NPCs.
         self.create_world()
 
-        # starts player in a random Location
+        # Starts the player in a random location.
         self._current_location = self.random_start_location()
 
-
-    # /////////////
-    #WORLD CREATION (SOPHIA)
-    """Creates NPCs, locations, and places
-     everything into the game world."""
-
+    # --------------------------------------------------
+    # WORLD CREATION (SOPHIA)
+    # --------------------------------------------------
     def create_world(self):
+        """Creates the game world.
+
+        Creates all NPCs, locations, items, and map connections.
+        """
 
         elf = NPC(
             "Elf",
@@ -89,15 +100,15 @@ class Game:
         barista.add_message("I think they want a latte")
         barista.add_message("Good luck saving campus!")
 
-        # Create locations
+        # Create locations.
         library = Location(
             "Library",
             "A quiet building full of books and frozen students."
         )
 
         kirkhof = Location(
-             "Kirkhof",
-             "The student center with food, tables, and empty hallways."
+            "Kirkhof",
+            "The student center with food, tables, and empty hallways."
         )
 
         padnos = Location(
@@ -140,9 +151,10 @@ class Game:
             "The clock has stopped, frozen by strange magic."
         )
 
+        # Save the elf's location for the give command.
         self._elf_location = ravines
 
-        # Connect locations
+        # Connect locations.
         library.add_location("east", kirkhof)
         kirkhof.add_location("west", library)
 
@@ -195,7 +207,7 @@ class Game:
         library.add_item(items[8])       # Laptop
         clock_tower.add_item(items[9])   # Bulldog Collar
 
-        # Add Locations to the game.
+        # Add locations to the game.
         self._locations = [
             library,
             kirkhof,
@@ -209,15 +221,17 @@ class Game:
             clock_tower
         ]
 
-    # /////////////
-    #SOFIE'S SECTION
-
+    # --------------------------------------------------
+    # SOFIE'S SECTION
+    # --------------------------------------------------
     def take(self, target: str) -> None:
+        """Adds an item from the current location to the inventory."""
+
         if target == "":
             print("Take what?")
             return
-        
-        #check every item in the current room.
+
+        # Check every item in the current room.
         for item in self._current_location.get_items():
             if item.name.lower() == target.lower():
 
@@ -225,13 +239,13 @@ class Game:
                     print("You can't carry that much weight.")
                     return
 
-                #add item to inventory.
+                # Add item to inventory.
                 self._inventory.append(item)
 
-                #update weight.
+                # Update carried weight.
                 self._current_weight += item.weight
 
-                #remove item from room.
+                # Remove item from the current room.
                 self._current_location.remove_item(item)
 
                 print(f"You picked up {item.name}.")
@@ -241,91 +255,79 @@ class Game:
 
     def give(self, target: str) -> None:
         """Removes an item from inventory.
+
         If the player is with the elf, the item is given to the elf.
-        Otherwise, it is dropped and left in the room."""
+        Otherwise, it is dropped and left in the room.
+        """
+
         if target == "":
             print("Give what?")
             return
 
-        #search inventory for the requested item.
+        # Search inventory for the requested item.
         for item in self._inventory:
-
             if item.name.lower() == target.lower():
 
-                #remove from inventory.
+                # Remove item from inventory.
                 self._inventory.remove(item)
 
+                # Update carried weight.
                 self._current_weight -= item.weight
 
-                # TODO MIA:
-                #Replace "woods" with actual elf location.
                 if self._current_location == self._elf_location:
 
-                    #feed food items to the elf, only food items have calories.
+                    # Feed edible items to the elf.
                     if item.calories > 0:
-
                         self._elf_calories_needed -= item.calories
 
-                        print(
-                            f"The elf eats the {item.name}."
-                        )
-
+                        print(f"The elf eats the {item.name}.")
                         print(
                             f"Calories still needed: "
                             f"{self._elf_calories_needed}"
                         )
 
-                        #check if the elf has enough food.
+                        # Check if the elf has enough food.
                         if self._elf_calories_needed <= 0:
-
-                            print(
-                                "The elf has enough food! :D"
-                            )
-
+                            print("The elf has enough food! :D")
                             self._in_progress = False
 
                     else:
-                        print(
-                            "The elf refuses to eat that."
-                        )
-
+                        print("The elf refuses to eat that.")
                         self.teleport_player()
 
                 else:
-
-                    #drop item in current room.
+                    # Drop item in the current room.
                     self._current_location.add_item(item)
+                    print(f"You dropped {item.name}.")
 
-                    print(
-                        f"You dropped {item.name}."
-                    )
                 return
 
         print("You do not have that item.")
 
     def show_items(self, args=None) -> None:
+        """Displays the player's current inventory."""
 
-        #show the current weight carried.
-        print(
-            f"Current weight: "
-            f"{self._current_weight}/30 lbs"
-        )
+        # Show the current weight carried.
+        print(f"Current weight: {self._current_weight}/30 lbs")
 
-        #check for an empty inventory.
+        # Check for an empty inventory.
         if len(self._inventory) == 0:
             print("Inventory is empty.")
             return
 
         print("Inventory:")
 
-        #display every item being carried.
+        # Display every item being carried.
         for item in self._inventory:
             print(f"- {item}")
 
-#ITEM CREATION (SOFIE)
+    # --------------------------------------------------
+    # ITEM CREATION (SOFIE)
+    # --------------------------------------------------
     def create_items(self):
+        """Creates all food and non-food items used in the game."""
 
-        #food items that can be fed to the elf.
+        # Food items that can be fed to the elf.
         pizza = Item(
             "Pizza Slice",
             "A greasy slice of pizza.",
@@ -368,7 +370,7 @@ class Game:
             1
         )
 
-        #non-food items.
+        # Non-food items.
         rusty_nail = Item(
             "Rusty Nail",
             "A rusty nail.",
@@ -410,100 +412,102 @@ class Game:
             bulldog_collar
         ]
 
-    # /////////////
+    # --------------------------------------------------
     # SOPHIA'S SECTION
-
-    def setup_commands(self) -> dict: #btw some of this is stealing from Mia's class so it may need a super_init or something to stop the underlines once Mia writes it
-        """Creates command dictionary."""
+    # --------------------------------------------------
+    def setup_commands(self) -> dict:
+        """Creates the command dictionary for the game."""
 
         commands = {
-        "help": self.help,
-        "?": self.help,
+            "help": self.help,
+            "?": self.help,
 
-        "look": self.look,
+            "look": self.look,
 
-        "go": self.go,
-        "leave": self.go,
+            "go": self.go,
+            "leave": self.go,
 
-        "take": self.take,
-        "get": self.take,
-        "grab": self.take,
-        "pickup": self.take,
+            "take": self.take,
+            "get": self.take,
+            "grab": self.take,
+            "pickup": self.take,
 
-        "give": self.give,
-        "drop": self.give,
-        "toss": self.give,
+            "give": self.give,
+            "drop": self.give,
+            "toss": self.give,
 
-        "items": self.show_items,
-        "inventory": self.show_items,
+            "items": self.show_items,
+            "inventory": self.show_items,
 
-        "talk": self.talk,
-        "meet": self.meet,
+            "talk": self.talk,
+            "meet": self.meet,
 
-        "map" : self.show_map,
-        "search": self.search,
+            "map": self.show_map,
+            "search": self.search,
 
-        "quit": self.quit,
-        "exit": self.quit
-    }
+            "quit": self.quit,
+            "exit": self.quit
+        }
+
         return commands
 
     def go(self, target: str) -> None:
-   #trying to attempt moving the player to a new location
+        """Moves the player to a neighboring location."""
 
-    # Marking this location as visited:
+        # Mark the current location as visited.
         self._current_location.set_visited()
-    # Check if one of the directions exists:
+
+        # Get the current location's neighbors.
         locations = self._current_location.get_locations()
+
         if target == "":
             print("Go where?")
             return
-        
+
         if target.lower() in locations:
-            self._current_location = locations[target.lower()] #this moves the player
+            self._current_location = locations[target.lower()]
             print(f"You are now in {self._current_location}.")
 
         else:
             print("Sorry, you can't go that way.")
 
-    # talk()
     def talk(self, target: str) -> None:
-        for npc in self._current_location.get_npcs():
-            if target == "":
-                print("Talk to who?")
-                return
+        """Displays the next message from an NPC."""
 
+        if target == "":
+            print("Talk to who?")
+            return
+
+        for npc in self._current_location.get_npcs():
             if npc.name.lower() == target.lower():
                 print(npc.get_message())
                 return
 
         print("They are not here.")
 
-    # meet()
     def meet(self, target: str) -> None:
+        """Displays an NPC's description."""
+
         for npc in self._current_location.get_npcs():
             if npc.name.lower() == target.lower():
                 print(npc.description)
                 return
-            
+
         print("They're not here.")
 
-
-    # /////////////
+    # --------------------------------------------------
     # MIA'S SECTION
-
-    # Create random starting location.
+    # --------------------------------------------------
     def random_start_location(self):
-        """Returns a random starting location."""
+        """Returns a random starting location for the player."""
 
         return random.choice(self._locations)
-    
+
     def teleport_player(self):
-        """Moves player to a random location."""
+        """Moves the player to a random location."""
 
         self._current_location = random.choice(self._locations)
         print(f"You have been teleported to {self._current_location.name}!")
-
 
     def opening_screen(self):
         """Prints the intro story."""
@@ -518,10 +522,8 @@ class Game:
         print("If you give the elf something inedible, you get teleported.")
         print()
 
-    # /////////////
-    # GROUP SECTION
     def play(self):
-        """Runs the game loop."""
+        """Runs the main game loop."""
 
         self.opening_screen()
         self.help()
@@ -557,7 +559,7 @@ class Game:
             print()
 
     def help(self, args=None):
-        """Displays all valid commands."""
+        """Displays all valid commands and the current time."""
 
         current_time = datetime.now().strftime("%I:%M %p")
 
@@ -569,7 +571,7 @@ class Game:
             print("-", command)
 
     def look(self, args=None):
-        """Displays current location information."""
+        """Displays information about the current location."""
 
         print()
         print(f"Your location is: {self._current_location}")
@@ -605,7 +607,7 @@ class Game:
                 print(f"- {direction}")
 
     def show_map(self, args=None):
-        """Custom command 1: shows visited map connections."""
+        """Custom command 1: shows nearby travel directions."""
 
         print("Nearby directions:")
 
@@ -613,12 +615,14 @@ class Game:
             print(f"- {direction}")
 
     def search(self, args=None):
-        """Custom command 2: gives a small hint."""
-    
+        """Custom command 2: gives the player a small hint."""
+
         if self._current_location == self._elf_location:
             print("The elf is here. Try giving him edible food.")
+
         elif len(self._current_location.get_items()) > 0:
             print("You find items nearby. Try using look.")
+
         else:
             print("You search around, but find nothing new.")
 
